@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- V for Vinay: a high-contrast serif V (thick left stroke, hairline right) in limewash on ink. Drawn as paths so it needs no font. -->
+  <rect width="32" height="32" rx="7" fill="#24201b"/>
+  <path d="M7.4 7.6h4.7l4.9 13.1 4.6-13.1h1.7L16.6 25h-1.3Z" fill="#f3efe7"/>
+  <path d="M5.8 6.6h7.8v1.2H5.8ZM19.8 6.6h5v1.2h-5Z" fill="#f3efe7"/>
+</svg>
