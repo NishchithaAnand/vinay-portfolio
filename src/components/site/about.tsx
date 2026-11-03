@@ -6,13 +6,14 @@ import { Picture } from "@/components/ui/picture-frame";
 import { site } from "@/content/site";
 
 /*
- * One pinned scene, driven by scroll (0 → 1 across the section). The section title stays put, like the collection's.
- *   0.04–0.34  the paragraph writes itself in, word by word
- *   0.40–0.75  the portrait rises from below to the centre
- *   0.55–0.75  each line parts between whole words to let it in: words left of centre move left, the rest move right
- *   0.75–0.85  the caption settles under the portrait; the rest is a hold
+ * The section title stays put, like the collection's. The paragraph writes itself in, word by word, as soon as the
+ * section comes into view (on its own clock, not the scroll). Scrolling on then plays a short pinned scene
+ * (0 → 1 across the section):
+ *   0.05–0.60  the portrait rises from below to the centre
+ *   0.30–0.60  each line parts between whole words to let it in: words left of centre move left, the rest move right
+ *   0.60–0.72  the caption settles under the portrait; the rest is a brief hold
  */
-const WORDS: [number, number] = [0.04, 0.34];
+const wordFill = { hidden: { opacity: 0.12 }, shown: { opacity: 1, transition: { duration: 0.5 } } };
 
 function usePrefersReducedMotion() {
   const [reduced, setReduced] = React.useState(() => window.matchMedia("(prefers-reduced-motion: reduce)").matches);
@@ -31,14 +32,11 @@ const paragraphClass = "text-balance text-[clamp(1.0625rem,0.92rem+0.55vw,1.5rem
 /** Where a word goes when the paragraph parts: which way, and how far its edge already overlaps the centre line. */
 type Parting = { side: -1 | 1; overlap: number };
 
-function Word({ word, index, count, progress, part, parting }: { word: string; index: number; count: number; progress: MotionValue<number>; part: MotionValue<string>; parting: Parting }) {
-  const span = (WORDS[1] - WORDS[0]) / count;
-  const start = WORDS[0] + index * span;
-  const opacity = useTransform(progress, [start, start + span * 2.5], [0.12, 1]);
-  const style = { opacity, x: part, "--side": parting.side, "--overlap": `${parting.overlap.toFixed(1)}px` };
+function Word({ word, part, parting }: { word: string; part: MotionValue<string>; parting: Parting }) {
+  const style = { x: part, "--side": parting.side, "--overlap": `${parting.overlap.toFixed(1)}px` };
   return (
     <>
-      <motion.span data-word className="inline-block" style={style as React.ComponentProps<typeof motion.span>["style"]}>
+      <motion.span data-word variants={wordFill} className="inline-block" style={style as React.ComponentProps<typeof motion.span>["style"]}>
         {word}
       </motion.span>{" "}
     </>
@@ -71,7 +69,7 @@ function partingsFor(spans: HTMLElement[], centre: number): Parting[] {
   return spans.map((el) => result.get(el) ?? { side: 1, overlap: 0 });
 }
 
-function PartingParagraph({ progress, split }: { progress: MotionValue<number>; split: MotionValue<number> }) {
+function PartingParagraph({ split }: { split: MotionValue<number> }) {
   const words = React.useMemo(() => about.paragraph.split(" "), []);
   const ref = React.useRef<HTMLParagraphElement>(null);
   const [partings, setPartings] = React.useState<Parting[]>(() => words.map(() => ({ side: 1, overlap: 0 })));
@@ -90,11 +88,19 @@ function PartingParagraph({ progress, split }: { progress: MotionValue<number>; 
   }, [words]);
 
   return (
-    <p ref={ref} className={`relative max-w-[min(92vw,46rem)] text-center ${paragraphClass}`}>
+    // Fills in word by word once, as soon as the paragraph comes into view.
+    <motion.p
+      ref={ref}
+      className={`relative max-w-[min(92vw,46rem)] text-center ${paragraphClass}`}
+      initial="hidden"
+      whileInView="shown"
+      viewport={{ once: true, amount: 0.6 }}
+      variants={{ hidden: {}, shown: { transition: { staggerChildren: 0.045, delayChildren: 0.15 } } }}
+    >
       {words.map((word, i) => (
-        <Word key={`${i}-${word}`} word={word} index={i} count={words.length} progress={progress} part={part} parting={partings[i] ?? { side: 1, overlap: 0 }} />
+        <Word key={`${i}-${word}`} word={word} part={part} parting={partings[i] ?? { side: 1, overlap: 0 }} />
       ))}
-    </p>
+    </motion.p>
   );
 }
 
@@ -186,18 +192,16 @@ export function About() {
   }, [reduced]);
   const { scrollYProgress: p } = useScroll({ target: ref, offset: ["start start", "end end"] });
 
-  const paragraphOpacity = useTransform(p, [0.02, 0.08], [0, 1]);
-  const paragraphY = useTransform(p, [0.02, 0.14], [32, 0]);
-  const imageY = useTransform(p, [0.4, 0.75], ["105vh", "0vh"]);
-  const imageScale = useTransform(p, [0.4, 0.75], [0.82, 1]);
-  const imageRotate = useTransform(p, [0.4, 0.75], [-5, 0]);
-  const split = useTransform(p, [0.55, 0.75], [0, 1]);
-  const captionOpacity = useTransform(p, [0.75, 0.85], [0, 1]);
+  const imageY = useTransform(p, [0.05, 0.6], ["105vh", "0vh"]);
+  const imageScale = useTransform(p, [0.05, 0.6], [0.82, 1]);
+  const imageRotate = useTransform(p, [0.05, 0.6], [-5, 0]);
+  const split = useTransform(p, [0.3, 0.6], [0, 1]);
+  const captionOpacity = useTransform(p, [0.6, 0.72], [0, 1]);
 
   if (reduced) return <StillAbout />;
 
   return (
-    <section ref={ref} id="about" aria-labelledby="about-title" className="relative h-[400vh] scroll-mt-14 sm:scroll-mt-16" style={{ marginBottom: -tail }}>
+    <section ref={ref} id="about" aria-labelledby="about-title" className="relative h-[240vh] scroll-mt-14 sm:scroll-mt-16" style={{ marginBottom: -tail }}>
       <div ref={stage} className="sticky top-0 flex h-svh flex-col overflow-hidden [--img-w:min(56vw,300px)] [--part:0.75rem] sm:[--part:1.25rem] lg:[--img-w:min(24vw,340px)] lg:[--part:2rem]">
         {/* The section title, placed and set exactly like the collection's; it doesn't move. */}
         <div className="mx-auto w-full max-w-[1440px] px-5 pt-section sm:px-8">
@@ -207,8 +211,8 @@ export function About() {
 
         {/* Centred in the space under the title (not the whole screen), so nothing overlaps it and the scene ends without a tall empty band. */}
         <div ref={area} className="relative flex min-h-0 flex-1 items-center justify-center px-4 pb-6">
-          <motion.div style={{ opacity: paragraphOpacity, y: paragraphY }}>
-            <PartingParagraph progress={p} split={split} />
+          <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.4 }} transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}>
+            <PartingParagraph split={split} />
           </motion.div>
 
           <motion.figure ref={figure} className="absolute m-0 w-(--img-w)" style={{ y: imageY, scale: imageScale, rotate: imageRotate }}>

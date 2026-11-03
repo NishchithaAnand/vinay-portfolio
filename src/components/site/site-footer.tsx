@@ -17,7 +17,7 @@ export function SiteFooter() {
     <footer className="mx-auto w-full max-w-[1440px] px-5 pt-section sm:px-8">
       <div className="grid gap-12 border-t border-border pt-12 lg:grid-cols-12 lg:pt-16">
         <div className="lg:col-span-6">
-          <a href="#top" aria-label={`${site.name}, back to top`} className="display-italic font-display text-[clamp(3.5rem,2rem+6vw,7.5rem)] leading-[0.9] tracking-[-0.035em]">
+          <a href="/" aria-label={`${site.name}, home`} className="display-italic font-display text-[clamp(3.5rem,2rem+6vw,7.5rem)] leading-[0.9] tracking-[-0.035em]">
             <RevealHeading as="span" text={site.name} by="letter" />
           </a>
           <Reveal delay={0.3} y={12}>

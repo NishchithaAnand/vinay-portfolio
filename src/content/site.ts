@@ -15,9 +15,10 @@ export const site = {
    */
   formEndpoint: null as string | null,
   nav: [
-    { label: "Works", href: "#collection" },
-    { label: "About", href: "#about" },
-    { label: "Featured", href: "#featured" },
+    // Two pages: the home page (/) and every work (/works/). Contact is on both, so its link stays on the page.
+    { label: "Works", href: "/works/" },
+    { label: "About", href: "/#about" },
+    { label: "Featured", href: "/#featured" },
     { label: "Contact", href: "#contact" },
   ],
 } as const;

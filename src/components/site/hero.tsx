@@ -3,7 +3,7 @@ import { motion } from "motion/react";
 import { ArrowRight } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { PictureRailGallery } from "@/components/ui/picture-rail-gallery";
-import { artworks } from "@/content/artworks";
+import { recentIds, worksById } from "@/content/artworks";
 import { detailLabels, enquireAbout, requestEnquiry } from "@/content/enquiry";
 import { site } from "@/content/site";
 import { cn } from "@/lib/utils";
@@ -12,6 +12,8 @@ import { cn } from "@/lib/utils";
 const GalleryWall = React.lazy(() => import("@/components/canvas/gallery-wall").then((m) => ({ default: m.GalleryWall })));
 
 const EASE = [0.16, 1, 0.3, 1] as const;
+/** The hero wall keeps to a few recent works; everything else is on the works page. */
+const recentWorks = worksById(recentIds);
 
 /** One line of display type rising out of its own baseline mask. */
 function Line({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
@@ -34,7 +36,7 @@ function FadeUp({ children, delay = 0, className }: { children: React.ReactNode;
 
 export function Hero() {
   return (
-    <section id="top" className="relative isolate flex min-h-svh flex-col overflow-hidden">
+    <section id="recent" aria-labelledby="hero-title" className="relative isolate z-10 flex min-h-svh flex-col overflow-hidden shadow-[0_-30px_60px_-20px_rgb(0_0_0/0.35)]">
       <div aria-hidden="true" className="absolute inset-0 -z-10 bg-background" />
       <React.Suspense fallback={null}>
         <GalleryWall className="absolute inset-0 -z-10 bg-background animate-in fade-in duration-1000" />
@@ -42,9 +44,9 @@ export function Hero() {
 
       <div className="mx-auto w-full max-w-[1440px] px-5 pt-28 sm:px-8 sm:pt-32 lg:pt-36">
         <div className="grid gap-5 lg:grid-cols-12 lg:items-end lg:gap-8">
-          <h1 className="display text-display text-balance lg:col-span-7">
+          <h2 id="hero-title" className="display text-display text-balance lg:col-span-7">
             <Line delay={0.1}>Every canvas holds <em>a world of its own</em></Line>
-          </h1>
+          </h2>
           <FadeUp delay={0.45} className="max-w-md lg:col-span-5 lg:justify-self-end">
             <p className="text-lede text-muted-foreground">
               An independent artist in {site.city}, moving freely between mediums and styles. The wall below changes as the work does.
@@ -56,18 +58,24 @@ export function Hero() {
       <FadeUp delay={0.6} className="mt-10 lg:mt-14">
         <PictureRailGallery
           id="works"
-          aria-label="Selected works"
-          items={artworks}
+          aria-label="Recent works"
+          items={recentWorks}
           autoplay
           interval={3200}
+          // Tighter spacing and a higher size cap: on a wide screen the frames grow to use the width.
+          gap={0.2}
+          maxUnit={210}
+          // On a phone the wall shows one work at a time: make it fill most of the width.
+          carouselScale={0.46}
+          carouselMaxUnit={240}
           caption="Hover a work to lift it. Click to see its details."
           labels={{ ...detailLabels, open: "Click to view" }}
           onEnquire={enquireAbout}
           className="bg-transparent!"
           action={
             <div className="flex flex-wrap items-center justify-center gap-2">
-              <a href="#collection" className={cn(buttonVariants({ size: "lg" }), "group h-10 rounded-full px-5")}>
-                Enter the collection
+              <a href="/works/" className={cn(buttonVariants({ size: "lg" }), "group h-10 rounded-full px-5")}>
+                Explore all works
                 <ArrowRight className="transition-transform duration-500 ease-(--ease-gallery) group-hover:translate-x-0.5" />
               </a>
               <a href="#contact" onClick={(event) => { event.preventDefault(); requestEnquiry("A commission"); }} className={cn(buttonVariants({ variant: "ghost", size: "lg" }), "h-10 rounded-full px-5")}>

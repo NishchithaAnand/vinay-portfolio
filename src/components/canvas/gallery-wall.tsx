@@ -43,7 +43,7 @@ float noise(vec2 p) {
 float fbm(vec2 p) {
   float v = 0.0;
   float a = 0.5;
-  for (int i = 0; i < 5; i++) {
+  for (int i = 0; i < 4; i++) {
     v += a * noise(p);
     p = p * 2.03 + vec2(1.7, 9.2);
     a *= 0.5;
@@ -218,7 +218,8 @@ export function GalleryWall({ className }: { className?: string }) {
       <Canvas
         flat
         linear
-        dpr={[1, 1.5]}
+        // The wall is soft by design, so 1× is plenty; at 1.5× a retina screen paid over twice the pixels for nothing.
+        dpr={1}
         frameloop={visible ? "always" : "never"}
         gl={{ antialias: false, alpha: false, powerPreference: "low-power" }}
         orthographic

@@ -1,0 +1,108 @@
+{
+  "about/vinay": {
+    "width": 1063,
+    "height": 1063
+  },
+  "about/vinay-drawing": {
+    "width": 818,
+    "height": 1452
+  },
+  "art/african-elephant": {
+    "width": 1440,
+    "height": 1690,
+    "small": 900
+  },
+  "art/cupped-hands": {
+    "width": 640,
+    "height": 524
+  },
+  "art/daughters": {
+    "width": 1440,
+    "height": 1800,
+    "small": 900
+  },
+  "art/eagle": {
+    "width": 1440,
+    "height": 1800,
+    "small": 900
+  },
+  "art/elephant": {
+    "width": 502,
+    "height": 640
+  },
+  "art/eye-for-detail": {
+    "width": 1440,
+    "height": 1489,
+    "small": 900
+  },
+  "art/eye-of-the-tiger": {
+    "width": 1440,
+    "height": 1739,
+    "small": 900
+  },
+  "art/hands": {
+    "width": 515,
+    "height": 640
+  },
+  "art/leopard": {
+    "width": 490,
+    "height": 640
+  },
+  "art/lioness": {
+    "width": 543,
+    "height": 640
+  },
+  "art/my-truth": {
+    "width": 1080,
+    "height": 1350,
+    "small": 900
+  },
+  "art/powerful-beyond-measure": {
+    "width": 1440,
+    "height": 1800,
+    "small": 900
+  },
+  "art/simple-faith": {
+    "width": 1440,
+    "height": 1800,
+    "small": 900
+  },
+  "art/single-mothers": {
+    "width": 1440,
+    "height": 1800,
+    "small": 900
+  },
+  "art/smile": {
+    "width": 960,
+    "height": 1200
+  },
+  "art/starry-night-montreal": {
+    "width": 2400,
+    "height": 1689,
+    "small": 900
+  },
+  "art/the-king": {
+    "width": 1440,
+    "height": 1800,
+    "small": 900
+  },
+  "art/timeless": {
+    "width": 960,
+    "height": 1200
+  },
+  "art/to-life": {
+    "width": 1080,
+    "height": 1350,
+    "small": 900
+  },
+  "art/wild-horses": {
+    "width": 1440,
+    "height": 1800,
+    "small": 900
+  },
+  "art/wild-tangled-forest": {
+    "width": 1440,
+    "height": 1800,
+    "small": 900
+  }
+}

@@ -15,8 +15,10 @@ function ThemeToggle() {
       aria-label={next === "dark" ? "Switch to night gallery" : "Switch to day gallery"}
       className={cn(buttonVariants({ variant: "ghost", size: "icon" }), "relative rounded-full")}
     >
-      <Sun className="size-4 rotate-0 scale-100 transition-transform duration-500 ease-(--ease-gallery) dark:-rotate-90 dark:scale-0" />
-      <Moon className="absolute size-4 rotate-90 scale-0 transition-transform duration-500 ease-(--ease-gallery) dark:rotate-0 dark:scale-100" />
+      {/* Follows the theme itself, not the colours around it: over the always-dark opening screen the header borrows
+          dark colours, but the icon still shows the mode the visitor is in. */}
+      <Sun className={cn("size-4 transition-transform duration-500 ease-(--ease-gallery)", resolved === "dark" ? "-rotate-90 scale-0" : "rotate-0 scale-100")} />
+      <Moon className={cn("absolute size-4 transition-transform duration-500 ease-(--ease-gallery)", resolved === "dark" ? "rotate-0 scale-100" : "rotate-90 scale-0")} />
     </button>
   );
 }
@@ -44,13 +46,14 @@ function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
     <aside
       ref={panel}
       id="site-menu"
+      data-lenis-prevent=""
       aria-label="Menu"
       data-open={open || undefined}
       inert={!open}
       className="group/menu invisible fixed inset-0 z-50 flex -translate-x-[102%] flex-col bg-background/95 px-5 pb-8 backdrop-blur-md transition-[translate,visibility] duration-[850ms] ease-(--ease-lift) will-change-[translate] data-open:visible data-open:translate-x-0 md:hidden motion-reduce:transition-none"
     >
       <div className="flex h-14 items-center justify-between sm:h-16">
-        <a href="#top" onClick={onClose} className="display-italic font-display text-xl tracking-tight">{site.name}</a>
+        <a href="/" onClick={onClose} className="display-italic font-display text-xl tracking-tight">{site.name}</a>
         <button type="button" aria-label="Close menu" onClick={onClose} className={cn(buttonVariants({ variant: "ghost", size: "icon" }), "rounded-full")}>
           <X className="size-4" />
         </button>
@@ -89,10 +92,17 @@ function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
 export function SiteHeader() {
   const [open, setOpen] = React.useState(false);
   const [scrolled, setScrolled] = React.useState(false);
+  // Over the home page's dark opening scene the header takes the dark theme's light text, and stays clear of it.
+  const [onDark, setOnDark] = React.useState(false);
   const close = React.useCallback(() => setOpen(false), []);
 
   React.useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
+    const intro = document.querySelector<HTMLElement>("[data-dark-intro]");
+    const onScroll = () => {
+      setScrolled(window.scrollY > 24);
+      // The intro is pinned; the next section covers it from below, so it is under the header until then.
+      setOnDark(!!intro && window.scrollY < intro.offsetHeight - 64);
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -100,9 +110,9 @@ export function SiteHeader() {
 
   return (
     <>
-    <header className={cn("fixed inset-x-0 top-0 z-50 transition-[background-color,border-color,backdrop-filter] duration-500", scrolled ? "border-b border-border/60 bg-background/70 backdrop-blur-md" : "border-b border-transparent")}>
+    <header className={cn("fixed inset-x-0 top-0 z-50 transition-[background-color,border-color,backdrop-filter] duration-500", onDark && "dark text-foreground", scrolled && !onDark ? "border-b border-border/60 bg-background/70 backdrop-blur-md" : "border-b border-transparent")}>
       <div className="mx-auto flex h-14 max-w-[1440px] items-center justify-between gap-6 px-5 sm:h-16 sm:px-8">
-        <a href="#top" className="display-italic font-display text-xl tracking-tight sm:text-2xl">
+        <a href="/" className="display-italic font-display text-xl tracking-tight sm:text-2xl">
           {site.name}
         </a>
 

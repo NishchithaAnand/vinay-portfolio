@@ -181,7 +181,7 @@ export function ArtworkDetail({ item, labels = DEFAULT_DETAIL_LABELS, source, so
   ].filter((row): row is string[] => row !== null);
 
   return createPortal(
-    <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby={titleId} data-slot="artwork-detail" className="fixed inset-0 z-[100] overflow-y-auto overscroll-contain text-foreground" onKeyDown={onKeyDown}>
+    <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby={titleId} data-slot="artwork-detail" data-lenis-prevent="" className="fixed inset-0 z-[100] overflow-x-hidden overflow-y-auto overscroll-contain text-foreground" onKeyDown={onKeyDown}>
       <div ref={backdropRef} aria-hidden="true" className="fixed inset-0 bg-background" />
 
       <button ref={closeRef} type="button" onClick={close} aria-label={labels.close} className="fixed right-4 top-4 z-10 inline-flex size-10 items-center justify-center rounded-full border border-border bg-card outline-none transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none sm:right-6 sm:top-6">

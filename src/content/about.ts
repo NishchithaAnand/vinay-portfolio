@@ -1,14 +1,20 @@
 /**
  * The About section: a heading, one short paragraph, and his portrait. The paragraph is written from confirmed facts
- * only (independent, Bengaluru to Montréal, works across styles) and should be replaced with Vinay's own words.
+ * only (a dentist whose passion is art, works across styles) and should be replaced with Vinay's own words.
  */
 export const about = {
   heading: "The man behind every stroke",
   // PLACEHOLDER: replace with Vinay's own words. Keep it to about four lines (40–50 words).
   paragraph:
-    "An independent artist from Bengaluru, now working in Montréal. He moves freely between styles and subjects, from a leopard stepping out of the dark to an old hand holding a young one, building every piece one patient stroke at a time.",
+    "A dentist by profession and an artist by passion, Vinay moves freely between styles and subjects: from a leopard stepping out of the dark to an old hand holding a young one, every piece built one patient stroke at a time.",
   /** From images/about/vinay.jpg via `npm run images`. Set to null to fall back to the stand-in drawing. */
   portrait: { image: "/about/vinay.jpg", avif: "/about/vinay.avif" } as { image: string; avif?: string } | null,
   standIn: { image: "/art/hands.jpg", avif: "/art/hands.avif", alt: "Hands, a drawing by Vinay" },
-  caption: "Vinay · Montréal",
+  /**
+   * The opening screen's picture: Vinay at his desk, drawing. A frame from his reel "Pursuit of Happiness" (Instagram,
+   * 26 Jul 2023), enhanced from 409 px (denoised, enlarged 2×, sharpened). Shown in black and white. A full-resolution
+   * photo of him at work would be sharper.
+   */
+  introPortrait: { image: "/about/vinay-drawing.jpg", avif: "/about/vinay-drawing.avif", alt: "Vinay at his desk, drawing" },
+  caption: "Vinay",
 } as const;

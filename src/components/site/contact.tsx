@@ -1,15 +1,14 @@
 import * as React from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { Reveal, RevealHeading, RevealImage } from "@/components/motion/reveal";
-import { Picture } from "@/components/ui/picture-frame";
+import { imageProps, Picture } from "@/components/ui/picture-frame";
 import { artworks } from "@/content/artworks";
 import { onEnquiryRequest } from "@/content/enquiry";
 import { site } from "@/content/site";
+import { glideTo } from "@/lib/smooth-scroll";
 import { cn } from "@/lib/utils";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
-/** The painting beside the form. Hands, reaching: fitting for a note to the artist. */
-const PAINTING_ID = "hands";
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 type Fields = { name: string; email: string; message: string };
@@ -28,7 +27,7 @@ function mailtoFor(fields: Fields, topic: string | null) {
   return `mailto:${site.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
 
-/** A field with an underline that darkens on focus and a label above; errors appear underneath. */
+/** A boxed field with its label above; errors appear underneath. */
 function Field({ id, label, hint, error, children }: { id: string; label: string; hint?: string; error?: string; children: React.ReactNode }) {
   return (
     <div>
@@ -49,10 +48,11 @@ function Field({ id, label, hint, error, children }: { id: string; label: string
 }
 
 const inputClass =
-  "mt-2 block w-full border-0 border-b border-border bg-transparent px-0 py-2.5 text-base outline-none transition-colors duration-300 placeholder:text-muted-foreground/60 focus:border-foreground aria-invalid:border-destructive motion-reduce:transition-none";
+  "mt-2 block w-full rounded-lg border border-input bg-background px-4 py-3 text-base outline-none transition-[border-color,box-shadow] duration-300 placeholder:text-muted-foreground/60 hover:border-foreground/30 focus:border-foreground/50 focus:ring-3 focus:ring-ring/25 aria-invalid:border-destructive aria-invalid:focus:ring-destructive/20 motion-reduce:transition-none";
 
-export function Contact() {
-  const painting = artworks.find((work) => work.id === PAINTING_ID) ?? artworks[0];
+/** The contact section. Given a work's id, that work hangs beside the form (home page); without one the form is centred. */
+export function Contact({ paintingId }: { paintingId?: string }) {
+  const painting = paintingId ? artworks.find((work) => work.id === paintingId) : undefined;
   const section = React.useRef<HTMLElement>(null);
   const nameInput = React.useRef<HTMLInputElement>(null);
   const [fields, setFields] = React.useState<Fields>({ name: "", email: "", message: "" });
@@ -67,7 +67,7 @@ export function Contact() {
       onEnquiryRequest((next) => {
         setTopic(next);
         setStatus("idle");
-        section.current?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+        if (section.current) glideTo(section.current);
         window.setTimeout(() => nameInput.current?.focus({ preventScroll: true }), 700);
       }),
     [],
@@ -113,36 +113,17 @@ export function Contact() {
   const done = status === "sent" || status === "opened-mail";
   const firstName = fields.name.trim().split(/\s+/)[0];
 
-  return (
-    <section ref={section} id="contact" aria-labelledby="contact-title" className="mx-auto w-full max-w-[1440px] scroll-mt-14 px-5 pt-section sm:scroll-mt-16 sm:px-8">
-      <RevealHeading id="contact-title" className="display text-title" text="Get in touch" />
-
-      <div className="mt-10 grid gap-12 lg:mt-14 lg:grid-cols-12 lg:gap-16">
-        {painting && (
-          <figure className="m-0 lg:col-span-5">
-            <RevealImage delay={0.1}>
-            <Picture src={painting.image} avif={painting.imageAvif} alt={`${painting.title}, by ${site.name}`} loading="lazy" decoding="async" className="block w-full object-cover shadow-[0_30px_60px_-30px_rgb(0_0_0/0.5)]" style={{ aspectRatio: String(painting.aspect ?? 0.8) }} />
-            </RevealImage>
-            <Reveal delay={0.45} y={10}>
-            <figcaption className="mt-4 text-[13px] text-muted-foreground">
-              <span className="font-medium text-foreground">{painting.title}</span>
-              {painting.medium && <> · {painting.medium}</>}
-            </figcaption>
-            </Reveal>
-          </figure>
-        )}
-
-        <div className="lg:col-span-7 lg:col-start-7 lg:pt-2">
-          <Reveal delay={0.2}>
-          <p className="max-w-lg text-lede text-muted-foreground">
-            Ask about a work, a commission, or anything else. Your message goes straight to {site.name}.
-          </p>
-          </Reveal>
-
+  const intro = (
+    <p className="text-lede text-muted-foreground">
+      Ask about a work, a commission, or anything else. Your message goes straight to {site.name}.
+    </p>
+  );
+  const card = "rounded-2xl border border-border bg-card p-6 shadow-[0_30px_60px_-40px_rgb(0_0_0/0.35)] sm:p-10";
+  const form = (
           <AnimatePresence mode="wait" initial={false}>
             {done ? (
-              <motion.div key="done" role="status" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.6, ease: EASE }} className="mt-12 max-w-lg border-t border-border pt-8">
-                <span aria-hidden="true" className="flex size-11 items-center justify-center rounded-full bg-foreground text-background">
+              <motion.div key="done" role="status" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.6, ease: EASE }} className="text-center">
+                <span aria-hidden="true" className="mx-auto flex size-11 items-center justify-center rounded-full bg-foreground text-background">
                   <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M4 9.5l3.2 3L14 5.5" /></svg>
                 </span>
                 {status === "sent" ? (
@@ -159,13 +140,13 @@ export function Contact() {
                     </p>
                   </>
                 )}
-                <button type="button" onClick={reset} className="link-draw mt-8 pb-0.5 text-sm">Send another inquiry</button>
+                <button type="button" onClick={reset} className="link-draw mt-8 inline-block pb-0.5 text-sm">Send another inquiry</button>
               </motion.div>
             ) : (
-              <motion.form key="form" noValidate onSubmit={submit} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.4 }} className="mt-12 max-w-lg space-y-9">
+              <motion.form key="form" noValidate onSubmit={submit} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.4 }} className="grid gap-6 sm:grid-cols-2">
                 <AnimatePresence initial={false}>
                   {topic && (
-                    <motion.p initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="flex items-center gap-3 overflow-hidden text-sm">
+                    <motion.p initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="flex items-center gap-3 overflow-hidden text-sm sm:col-span-2">
                       <span className="text-muted-foreground">About</span>
                       <span className="inline-flex items-center gap-2 rounded-full bg-muted py-1 pl-3 pr-1.5 font-medium">
                         {topic}
@@ -189,7 +170,7 @@ export function Contact() {
                 </Field>
                 </Reveal>
 
-                <Reveal delay={0.5} y={16}>
+                <Reveal delay={0.5} y={16} className="sm:col-span-2">
                 <Field id="contact-message" label="Message" hint="Optional">
                   <textarea id="contact-message" name="message" rows={4} value={fields.message} onChange={update("message")} className={cn(inputClass, "resize-none [field-sizing:content] min-h-24")} placeholder={topic ? `Anything you'd like to know about ${topic}?` : "What would you like to ask?"} />
                 </Field>
@@ -198,16 +179,16 @@ export function Contact() {
                 <input type="text" name="company" tabIndex={-1} autoComplete="off" aria-hidden="true" className="absolute -left-[9999px] size-px opacity-0" />
 
                 {status === "failed" && (
-                  <p role="alert" className="text-sm text-destructive">
+                  <p role="alert" className="text-sm text-destructive sm:col-span-2">
                     It didn't send. Please try again, or write to <a href={mailtoFor(fields, topic)} className="underline underline-offset-4">{site.email}</a>.
                   </p>
                 )}
 
-                <Reveal delay={0.6} y={16}>
+                <Reveal delay={0.6} y={16} className="pt-2 sm:col-span-2">
                 <button
                   type="submit"
                   disabled={status === "sending"}
-                  className="group inline-flex h-12 items-center gap-2.5 rounded-full bg-primary px-7 text-sm font-medium text-primary-foreground outline-none transition-colors hover:bg-primary/85 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:opacity-70 motion-reduce:transition-none"
+                  className="group inline-flex h-12 w-full items-center justify-center gap-2.5 rounded-full bg-primary px-7 text-sm font-medium text-primary-foreground outline-none transition-colors hover:bg-primary/85 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:opacity-70 motion-reduce:transition-none"
                 >
                   {status === "sending" ? "Sending…" : "Send inquiry"}
                   {status === "sending" ? (
@@ -220,8 +201,42 @@ export function Contact() {
               </motion.form>
             )}
           </AnimatePresence>
-        </div>
-      </div>
+  );
+
+  return (
+    <section ref={section} id="contact" aria-labelledby="contact-title" className="mx-auto w-full max-w-[1440px] scroll-mt-14 px-5 pt-section sm:scroll-mt-16 sm:px-8">
+      {painting ? (
+        // Home page: one of his works beside the form.
+        <>
+          <RevealHeading id="contact-title" className="display text-title" text="Get in touch" />
+          <div className="mt-10 grid gap-12 lg:mt-14 lg:grid-cols-12 lg:gap-16">
+            <figure className="m-0 lg:col-span-5">
+              <RevealImage delay={0.1}>
+                <Picture {...imageProps(painting)} sizes="(min-width: 1024px) 40vw, 100vw" alt={`${painting.title}, by ${site.name}`} loading="lazy" decoding="async" className="block w-full object-cover shadow-[0_30px_60px_-30px_rgb(0_0_0/0.5)]" style={{ aspectRatio: String(painting.aspect ?? 0.8) }} />
+              </RevealImage>
+              <Reveal delay={0.45} y={10}>
+                <figcaption className="mt-4 text-[13px] text-muted-foreground">
+                  <span className="font-medium text-foreground">{painting.title}</span>
+                  {painting.medium && <> · {painting.medium}</>}
+                </figcaption>
+              </Reveal>
+            </figure>
+            <div className="lg:col-span-7 lg:col-start-7 lg:pt-2">
+              <Reveal delay={0.2} className="max-w-xl">{intro}</Reveal>
+              <Reveal delay={0.3} className={cn(card, "mt-8 max-w-xl")}>{form}</Reveal>
+            </div>
+          </div>
+        </>
+      ) : (
+        // Works page: the form alone, centred.
+        <>
+          <div className="mx-auto max-w-xl text-center">
+            <RevealHeading id="contact-title" className="display text-title" text="Get in touch" />
+            <Reveal delay={0.2} className="mt-4">{intro}</Reveal>
+          </div>
+          <Reveal delay={0.3} className={cn(card, "mx-auto mt-10 max-w-xl sm:mt-12")}>{form}</Reveal>
+        </>
+      )}
     </section>
   );
 }

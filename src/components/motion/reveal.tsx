@@ -54,7 +54,11 @@ export function RevealHeading({ text, id, className, as = "h2", delay = 0, by = 
   );
 }
 
-/** A painting revealed like a curtain going up: the frame wipes open from the bottom while the image settles from a slight zoom. */
+/**
+ * A painting revealed like a curtain going up: the frame wipes open from the bottom while the image rises a little and
+ * settles from a slight zoom. The zoom stays small (4%): even a painting as wide as the page then stays inside the page
+ * margins while it waits, so it never makes the page wider than the screen.
+ */
 export function RevealImage({ children, className, delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
   const reduced = useReducedMotion();
   if (reduced) {
@@ -73,7 +77,7 @@ export function RevealImage({ children, className, delay = 0 }: { children: Reac
       viewport={VIEW}
       transition={{ duration: 1.25, ease: EASE, delay }}
     >
-      <motion.div initial={{ scale: 1.14 }} whileInView={{ scale: 1 }} viewport={VIEW} transition={{ duration: 1.6, ease: EASE, delay }}>
+      <motion.div initial={{ scale: 1.04, y: 28 }} whileInView={{ scale: 1, y: 0 }} viewport={VIEW} transition={{ duration: 1.6, ease: EASE, delay }}>
         {children}
       </motion.div>
     </motion.div>

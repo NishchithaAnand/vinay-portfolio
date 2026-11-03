@@ -17,6 +17,9 @@ export interface PictureRailItem {
   image: string;
   /** Smaller AVIF of the same image, preferred by browsers that read it; `image` stays the fallback. */
   imageAvif?: string;
+  /** Pixel width of `image`, and a smaller copy for grids. With both, browsers load only the size they need. */
+  imageWidth?: number;
+  imageSmall?: ImageSmall;
   /** Width ÷ height of the artwork. Defaults to 0.8 (a 4:5 portrait). */
   aspect?: number;
   /** Frame moulding. Defaults to "black". */
@@ -128,14 +131,33 @@ function Fixture({ width, hood, arm }: { width: number; hood: number; arm: numbe
 }
 
 /** An <img> that offers the AVIF first when there is one. The <picture> takes no box, so layout is the img's alone. */
-export function Picture({ avif, ...img }: React.ComponentProps<"img"> & { avif?: string }) {
-  if (!avif) return <img {...img} />;
+export interface ImageSmall {
+  width: number;
+  avif: string;
+  jpg: string;
+}
+
+/**
+ * An <img> that offers the AVIF first when there is one. Given a small copy, the full width and `sizes` (how wide it
+ * shows), the browser picks the smaller file wherever that is enough. The <picture> takes no box, so layout is the
+ * img's alone.
+ */
+export function Picture({ avif, small, width, sizes, src, ...img }: React.ComponentProps<"img"> & { avif?: string; small?: ImageSmall; width?: number }) {
+  const set = (smallUrl: string, fullUrl?: string) => (small && width && fullUrl ? `${smallUrl} ${small.width}w, ${fullUrl} ${width}w` : undefined);
+  const imgSet = set(small?.jpg ?? "", src);
+  if (!avif) return <img src={src} srcSet={imgSet} sizes={imgSet ? sizes : undefined} {...img} />;
+  const avifSet = set(small?.avif ?? "", avif) ?? avif;
   return (
     <picture className="contents">
-      <source srcSet={avif} type="image/avif" />
-      <img {...img} />
+      <source srcSet={avifSet} sizes={small ? sizes : undefined} type="image/avif" />
+      <img src={src} srcSet={imgSet} sizes={imgSet ? sizes : undefined} {...img} />
     </picture>
   );
+}
+
+/** Picture props for a work: its files, plus the small copy and width when the work has them. */
+export function imageProps(item: PictureRailItem) {
+  return { src: item.image, avif: item.imageAvif, small: item.imageSmall, width: item.imageWidth };
 }
 
 /** CSS background for the same choice (AVIF first, then the fallback). */
@@ -166,9 +188,9 @@ export function FrameArt({ item, shape, unit, bare = false, glareRef, dimRef }: 
         <Moulding frame={shape.frame} m={m} />
         <span className="absolute block overflow-hidden" style={{ inset: m, background: mat ? `linear-gradient(to bottom, ${PAPER}, color-mix(in oklab, white 89%, wheat))` : "var(--color-muted)" }}>
           <span className="absolute block overflow-hidden bg-muted" style={{ backgroundImage: "radial-gradient(120% 90% at 28% 18%, color-mix(in oklab, var(--color-foreground) 9%, transparent), transparent 70%)", left: mat, right: mat, top: mat, bottom: mat + matB, boxShadow: mat ? `0 0 0 ${bevel}px color-mix(in oklab, white 97%, wheat), 0 0 0 ${bevel + 0.6}px color-mix(in oklab, black 16%, transparent), ${bevel * 0.6}px ${bevel}px ${bevel * 1.6}px ${bevel}px color-mix(in oklab, black 9%, transparent)` : undefined }}>
+            {/* On the wall a frame is small, so it takes the grid copy; opened (bare), the full size for the lens. */}
             <Picture
-              src={item.image}
-              avif={item.imageAvif}
+              {...(bare ? { src: item.image, avif: item.imageAvif } : { ...imageProps(item), sizes: `${Math.round(shape.w * unit - 2 * (m + mat))}px` })}
               alt=""
               draggable={false}
               decoding="async"

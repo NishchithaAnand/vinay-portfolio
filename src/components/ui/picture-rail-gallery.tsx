@@ -21,6 +21,13 @@ export interface PictureRailGalleryProps extends React.ComponentProps<"section">
   action?: React.ReactNode;
   /** Lights the prints one by one until the visitor interacts. */
   autoplay?: boolean;
+  /** Space between frames, in frame units (default 0.3). Less space means larger frames when the wall is full. */
+  gap?: number;
+  /** Largest frame scale, in px per frame unit (default 150). Raise it to let a short wall grow. */
+  maxUnit?: number;
+  /** On a narrow screen (one frame at a time, swiped): frame scale as a share of the width (default 0.2), and its cap (default 128). */
+  carouselScale?: number;
+  carouselMaxUnit?: number;
   /** Milliseconds each print stays lit during autoplay. */
   interval?: number;
   /** Lit print. Pass a number or null to control it; leave it undefined to let the gallery manage it. */
@@ -76,13 +83,13 @@ function restTilt(i: number) {
 
 type Layout = { width: number; unit: number; carousel: boolean; railTop: number; railT: number; pivotY: number; tops: number[]; stageH: number };
 
-function layoutFor(shapes: Shape[], drops: number[], width: number): Layout {
+function layoutFor(shapes: Shape[], drops: number[], width: number, gap = GAP, maxUnit = RAIL_MAX_UNIT, carouselScale = 0.2, carouselMax = CAROUSEL_MAX_UNIT): Layout {
   const n = shapes.length;
   const sumW = shapes.reduce((sum, s) => sum + s.w, 0);
   const maxW = shapes.reduce((m, s) => Math.max(m, s.w), 0);
-  const fit = n ? (width - 2 * EDGE) / (sumW + Math.max(0, n - 1) * GAP + 2 * BREATH + maxW * (LIFT_GROW - 1)) : RAIL_MAX_UNIT;
+  const fit = n ? (width - 2 * EDGE) / (sumW + Math.max(0, n - 1) * gap + 2 * BREATH + maxW * (LIFT_GROW - 1)) : maxUnit;
   const carousel = fit < RAIL_MIN_UNIT;
-  const unit = carousel ? clamp(width * 0.2, 92, CAROUSEL_MAX_UNIT) : Math.min(RAIL_MAX_UNIT, fit);
+  const unit = carousel ? clamp(width * carouselScale, 92, Math.max(92, carouselMax)) : Math.min(maxUnit, fit);
   const railTop = 6;
   const railT = Math.round(clamp(unit * 0.11, 9, 16));
   const pivotY = railTop + railT + Math.round(unit * 0.045) + 2;
@@ -184,6 +191,10 @@ export function PictureRailGallery({
   action,
   autoplay = false,
   interval = 2600,
+  gap = GAP,
+  maxUnit = RAIL_MAX_UNIT,
+  carouselScale = 0.2,
+  carouselMaxUnit = CAROUSEL_MAX_UNIT,
   active: activeProp,
   onActiveChange,
   onOpenChange,
@@ -209,7 +220,7 @@ export function PictureRailGallery({
   const shapes = React.useMemo(() => items.map(shapeOf), [items]);
   const drops = React.useMemo(() => items.map((item) => item.drop ?? 0), [items]);
   const [width, setWidth] = React.useState(0);
-  const layout = React.useMemo(() => layoutFor(shapes, drops, width), [shapes, drops, width]);
+  const layout = React.useMemo(() => layoutFor(shapes, drops, width, gap, maxUnit, carouselScale, carouselMaxUnit), [shapes, drops, width, gap, maxUnit, carouselScale, carouselMaxUnit]);
   const [activeState, setActiveState] = React.useState(null as number | null);
   const requested = React.useRef(undefined as number | null | undefined);
   const raw = controlled ? (activeProp ?? null) : activeState;
@@ -253,7 +264,7 @@ export function PictureRailGallery({
   const targetsFor = React.useCallback((lay: Layout, front: number | null, centreIndex: number) => {
     const n = shapes.length;
     const feet = shapes.map((s, i) => s.w * lay.unit * (i === front ? LIFT_GROW : 1));
-    const gapAfter = (a: number) => lay.unit * (GAP + (front !== null && (a === front || a + 1 === front) ? BREATH : 0));
+    const gapAfter = (a: number) => lay.unit * (gap + (front !== null && (a === front || a + 1 === front) ? BREATH : 0));
     const xs = feet.map(() => 0);
     if (lay.carousel) {
       const c = clamp(front ?? centreIndex, 0, Math.max(0, n - 1));
@@ -267,7 +278,7 @@ export function PictureRailGallery({
     let cursor = (lay.width - total) / 2;
     for (let i = 0; i < n; i++) { xs[i] = cursor + (feet[i] ?? 0) / 2; cursor += (feet[i] ?? 0) + gapAfter(i); }
     return xs;
-  }, [shapes]);
+  }, [shapes, gap]);
 
   const paint = React.useCallback((i: number) => {
     const s = sim.current;
@@ -768,7 +779,7 @@ export function PictureRailGallery({
         </div>
       )}
 
-      <div className="relative z-10 flex flex-col items-center gap-3 px-6 pb-7 pt-3 text-center">
+      <div className={`relative z-10 flex flex-col items-center px-6 pb-7 text-center ${layout.carousel ? "gap-5 pt-8" : "gap-3 pt-3"}`}>
         <div id={`${uid}-caption`} aria-live="polite" className="min-h-[2.75rem]">
           <p className="text-sm font-medium">{currentItem ? currentItem.title : caption}</p>
           {currentItem && <p className="mt-0.5 text-[13px] text-muted-foreground">{byline}{byline ? " · " : ""}<span className="text-foreground/80">{labels.open}</span></p>}
