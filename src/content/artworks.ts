@@ -19,13 +19,14 @@ export interface Artwork extends PictureRailItem {
  * src/content/images.json (real pixel sizes), so aspect ratios never need typing in by hand.
  */
 function art(key: string) {
-  const info = (imageSizes as Record<string, { width: number; height: number; small?: number }>)[`art/${key}`];
+  const info = (imageSizes as Record<string, { width: number; height: number; small?: number; thumb?: number }>)[`art/${key}`];
   if (!info) throw new Error(`No image for art/${key}: add images/art/${key}.jpg and run npm run images`);
   return {
     image: `/art/${key}.jpg`,
     imageAvif: `/art/${key}.avif`,
     imageWidth: info.width,
     imageSmall: info.small ? { width: info.small, avif: `/art/${key}-sm.avif`, jpg: `/art/${key}-sm.jpg` } : undefined,
+    imageThumb: info.thumb ? { width: info.thumb, avif: `/art/${key}-th.avif`, jpg: `/art/${key}-th.jpg` } : undefined,
     aspect: info.width / info.height,
   };
 }

@@ -26,7 +26,7 @@ const manifestPath = join(root, "src", "content", "images.json");
  * or 0 for none.
  */
 const rules = {
-  art: { maxEdge: 2400, small: 900, avif: 65, jpeg: 90 },
+  art: { maxEdge: 2400, small: 900, thumb: 420, avif: 65, jpeg: 90 },
   about: { maxEdge: 1600, small: 0, avif: 60, jpeg: 84 },
 };
 const fallbackRule = { maxEdge: 2000, small: 0, avif: 62, jpeg: 86 };
@@ -72,6 +72,13 @@ for await (const file of walk(source)) {
     smallNote = `   grid ${kb(smallAvif.size)} @${smallAvif.width}`;
   } else {
     grid += avif.size;
+  }
+  // A thumbnail for the home page's moving rows of paintings, which show many works small at first load.
+  if (rule.thumb && avif.width > rule.thumb * 1.15) {
+    const thumbResize = { width: rule.thumb, withoutEnlargement: true };
+    await sharp(file).rotate().resize(thumbResize).avif({ quality: rule.avif, effort: 6 }).toFile(`${base}-th.avif`);
+    await sharp(file).rotate().resize(thumbResize).jpeg({ quality: rule.jpeg - 6, mozjpeg: true, progressive: true }).toFile(`${base}-th.jpg`);
+    entry.thumb = rule.thumb;
   }
   manifest[key] = entry;
 

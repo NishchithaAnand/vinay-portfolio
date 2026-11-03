@@ -15,11 +15,8 @@ export function HomePage() {
   useSmoothScroll();
   return (
     <>
-      {/* The intro stays pinned until "Every canvas…" has slid up over it; then both move on. */}
-      <div className="relative">
-        <Intro />
-        <Hero />
-      </div>
+      <Intro />
+      <Hero />
       <Collection
         id="collection"
         title="Selected works"

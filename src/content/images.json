@@ -7,102 +7,127 @@
     "width": 818,
     "height": 1452
   },
+  "about/vinay-face": {
+    "width": 440,
+    "height": 440
+  },
   "art/african-elephant": {
     "width": 1440,
     "height": 1690,
-    "small": 900
+    "small": 900,
+    "thumb": 420
   },
   "art/cupped-hands": {
     "width": 640,
-    "height": 524
+    "height": 524,
+    "thumb": 420
   },
   "art/daughters": {
     "width": 1440,
     "height": 1800,
-    "small": 900
+    "small": 900,
+    "thumb": 420
   },
   "art/eagle": {
     "width": 1440,
     "height": 1800,
-    "small": 900
+    "small": 900,
+    "thumb": 420
   },
   "art/elephant": {
     "width": 502,
-    "height": 640
+    "height": 640,
+    "thumb": 420
   },
   "art/eye-for-detail": {
     "width": 1440,
     "height": 1489,
-    "small": 900
+    "small": 900,
+    "thumb": 420
   },
   "art/eye-of-the-tiger": {
     "width": 1440,
     "height": 1739,
-    "small": 900
+    "small": 900,
+    "thumb": 420
   },
   "art/hands": {
     "width": 515,
-    "height": 640
+    "height": 640,
+    "thumb": 420
   },
   "art/leopard": {
     "width": 490,
-    "height": 640
+    "height": 640,
+    "thumb": 420
   },
   "art/lioness": {
     "width": 543,
-    "height": 640
+    "height": 640,
+    "thumb": 420
   },
   "art/my-truth": {
     "width": 1080,
     "height": 1350,
-    "small": 900
+    "small": 900,
+    "thumb": 420
   },
   "art/powerful-beyond-measure": {
     "width": 1440,
     "height": 1800,
-    "small": 900
+    "small": 900,
+    "thumb": 420
   },
   "art/simple-faith": {
     "width": 1440,
     "height": 1800,
-    "small": 900
+    "small": 900,
+    "thumb": 420
   },
   "art/single-mothers": {
     "width": 1440,
     "height": 1800,
-    "small": 900
+    "small": 900,
+    "thumb": 420
   },
   "art/smile": {
     "width": 960,
-    "height": 1200
+    "height": 1200,
+    "thumb": 420
   },
   "art/starry-night-montreal": {
     "width": 2400,
     "height": 1689,
-    "small": 900
+    "small": 900,
+    "thumb": 420
   },
   "art/the-king": {
     "width": 1440,
     "height": 1800,
-    "small": 900
+    "small": 900,
+    "thumb": 420
   },
   "art/timeless": {
     "width": 960,
-    "height": 1200
+    "height": 1200,
+    "thumb": 420
   },
   "art/to-life": {
     "width": 1080,
     "height": 1350,
-    "small": 900
+    "small": 900,
+    "thumb": 420
   },
   "art/wild-horses": {
     "width": 1440,
     "height": 1800,
-    "small": 900
+    "small": 900,
+    "thumb": 420
   },
   "art/wild-tangled-forest": {
     "width": 1440,
     "height": 1800,
-    "small": 900
+    "small": 900,
+    "thumb": 420
   }
 }

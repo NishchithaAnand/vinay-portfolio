@@ -16,5 +16,7 @@ export const about = {
    * photo of him at work would be sharper.
    */
   introPortrait: { image: "/about/vinay-drawing.jpg", avif: "/about/vinay-drawing.avif", alt: "Vinay at his desk, drawing" },
+  /** A square crop of the same photo around his face, for the circle set into his name on the home page. */
+  introFace: { image: "/about/vinay-face.jpg", avif: "/about/vinay-face.avif", alt: "Vinay" },
   caption: "Vinay",
 } as const;

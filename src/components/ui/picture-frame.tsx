@@ -20,6 +20,8 @@ export interface PictureRailItem {
   /** Pixel width of `image`, and a smaller copy for grids. With both, browsers load only the size they need. */
   imageWidth?: number;
   imageSmall?: ImageSmall;
+  /** A thumbnail (about 420 px wide) for places that show many works small at once. */
+  imageThumb?: ImageSmall;
   /** Width ÷ height of the artwork. Defaults to 0.8 (a 4:5 portrait). */
   aspect?: number;
   /** Frame moulding. Defaults to "black". */

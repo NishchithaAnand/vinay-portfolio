@@ -235,37 +235,6 @@
   }
 }
 
-/*
- * The home page's opening screen settles back and dims while the next section slides over it. These are CSS
- * scroll-driven animations, tied to the first screen-height of page scroll: the browser runs them on the compositor in
- * step with the scroll (smooth even with gliding scroll), where JavaScript would land a frame late and shake.
- * Browsers without scroll timelines simply keep the scene still.
- */
-@keyframes intro-figure {
-  to { transform: translateY(-6%) scale(0.97); }
-}
-@keyframes intro-text {
-  to { transform: translateY(-25%); }
-}
-@keyframes intro-dim {
-  to { opacity: 0.5; }
-}
-@supports (animation-timeline: scroll()) {
-  @media (prefers-reduced-motion: no-preference) {
-    .intro-figure,
-    .intro-text,
-    .intro-dim {
-      animation-timing-function: linear;
-      animation-fill-mode: both;
-      animation-timeline: scroll(root);
-      animation-range: 0 100vh;
-    }
-    .intro-figure { animation-name: intro-figure; transform-origin: 50% 0; }
-    .intro-text { animation-name: intro-text; }
-    .intro-dim { animation-name: intro-dim; }
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .link-draw {
     transition: none;

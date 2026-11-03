@@ -36,7 +36,7 @@ function FadeUp({ children, delay = 0, className }: { children: React.ReactNode;
 
 export function Hero() {
   return (
-    <section id="recent" aria-labelledby="hero-title" className="relative isolate z-10 flex min-h-svh flex-col overflow-hidden shadow-[0_-30px_60px_-20px_rgb(0_0_0/0.35)]">
+    <section id="recent" aria-labelledby="hero-title" className="relative isolate flex min-h-svh flex-col overflow-hidden">
       <div aria-hidden="true" className="absolute inset-0 -z-10 bg-background" />
       <React.Suspense fallback={null}>
         <GalleryWall className="absolute inset-0 -z-10 bg-background animate-in fade-in duration-1000" />
