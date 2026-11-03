@@ -1,12 +1,12 @@
 /**
  * The About section: a heading, one short paragraph, and his portrait. The paragraph is written from confirmed facts
- * only (a dentist whose passion is art, works across styles) and should be replaced with Vinay's own words.
+ * only (an independent artist who works across styles) and should be replaced with Vinay's own words.
  */
 export const about = {
   heading: "The man behind every stroke",
   // PLACEHOLDER: replace with Vinay's own words. Keep it to about four lines (40–50 words).
   paragraph:
-    "A dentist by profession and an artist by passion, Vinay moves freely between styles and subjects: from a leopard stepping out of the dark to an old hand holding a young one, every piece built one patient stroke at a time.",
+    "An independent artist, Vinay moves freely between styles and subjects: from a leopard stepping out of the dark to an old hand holding a young one, every piece built one patient stroke at a time.",
   /** From images/about/vinay.jpg via `npm run images`. Set to null to fall back to the stand-in drawing. */
   portrait: { image: "/about/vinay.jpg", avif: "/about/vinay.avif" } as { image: string; avif?: string } | null,
   standIn: { image: "/art/hands.jpg", avif: "/art/hands.avif", alt: "Hands, a drawing by Vinay" },

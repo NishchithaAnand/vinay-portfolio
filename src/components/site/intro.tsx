@@ -64,7 +64,7 @@ export function Intro() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, ease: EASE, delay: 0.8 }}
           >
-            {["Artist", "Dentist"].map((tag) => (
+            {["Artist"].map((tag) => (
               <li key={tag} className="label flex items-center gap-2 text-foreground/85">
                 <span aria-hidden="true" className="size-1.5 bg-signal" />
                 {tag}
