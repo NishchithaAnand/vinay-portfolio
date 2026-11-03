@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { ArtworkDetail, DEFAULT_DETAIL_LABELS, type ArtworkDetailLabels } from "@/components/ui/artwork-detail";
 import { BRASS, BRASS_SIDE, clamp, FrameArt, shapeOf, type PictureRailItem, type Shape } from "@/components/ui/picture-frame";
 
@@ -207,6 +208,7 @@ export function PictureRailGallery({
   const uid = React.useId().replace(/[^a-zA-Z0-9_-]/g, "");
   const count = items.length;
   const controlled = activeProp !== undefined;
+  const viewportRef = React.useRef(null as HTMLDivElement | null);
   const stageRef = React.useRef(null as HTMLDivElement | null);
   const hangs = React.useRef([] as (HTMLDivElement | null)[]);
   const backs = React.useRef([] as (HTMLDivElement | null)[]);
@@ -220,7 +222,14 @@ export function PictureRailGallery({
   const shapes = React.useMemo(() => items.map(shapeOf), [items]);
   const drops = React.useMemo(() => items.map((item) => item.drop ?? 0), [items]);
   const [width, setWidth] = React.useState(0);
-  const layout = React.useMemo(() => layoutFor(shapes, drops, width, gap, maxUnit, carouselScale, carouselMaxUnit), [shapes, drops, width, gap, maxUnit, carouselScale, carouselMaxUnit]);
+  const stageWidth = React.useMemo(() => {
+    if (width < 768) return width;
+    const sumW = shapes.reduce((sum, shape) => sum + shape.w, 0);
+    const maxW = shapes.reduce((max, shape) => Math.max(max, shape.w), 0);
+    const fullWidth = 2 * EDGE + (sumW + Math.max(0, count - 1) * gap + 2 * BREATH + maxW * (LIFT_GROW - 1)) * maxUnit;
+    return Math.max(width, fullWidth);
+  }, [width, shapes, count, gap, maxUnit]);
+  const layout = React.useMemo(() => layoutFor(shapes, drops, stageWidth, gap, maxUnit, carouselScale, carouselMaxUnit), [shapes, drops, stageWidth, gap, maxUnit, carouselScale, carouselMaxUnit]);
   const [activeState, setActiveState] = React.useState(null as number | null);
   const requested = React.useRef(undefined as number | null | undefined);
   const raw = controlled ? (activeProp ?? null) : activeState;
@@ -252,12 +261,12 @@ export function PictureRailGallery({
   React.useEffect(() => { setPlaying(autoplay); }, [autoplay]);
 
   React.useLayoutEffect(() => {
-    const stage = stageRef.current;
-    if (!stage) return;
+    const viewport = viewportRef.current;
+    if (!viewport) return;
     const measure = (next: number) => setWidth((old) => (Math.abs(old - next) < 0.5 ? old : Math.round(next * 100) / 100));
-    measure(stage.clientWidth);
+    measure(viewport.clientWidth);
     const observer = new ResizeObserver((entries) => { const box = entries[0]; if (box) measure(box.contentRect.width); });
-    observer.observe(stage);
+    observer.observe(viewport);
     return () => observer.disconnect();
   }, []);
 
@@ -670,24 +679,29 @@ export function PictureRailGallery({
       )}
 
       <div
-        ref={stageRef}
-        data-stage
-        role="group"
-        aria-label={heading ?? "Picture rail"}
-        className="relative mt-5 w-full touch-pan-y select-none"
-        style={{ height: layout.stageH, overflowX: "clip" }}
-        onPointerMove={onPointerMove}
-        onPointerDown={onPointerDown}
-        onPointerUp={(event) => finishPointer(event, false)}
-        onPointerCancel={(event) => finishPointer(event, true)}
-        onPointerLeave={(event) => {
-          if (event.pointerType !== "mouse" || pointer.current.id >= 0 || layout.carousel) return;
-          for (let i = 0; i < count; i++) sim.current.tty[i] = 0;
-          if (!document.activeElement?.matches("[data-frame]:focus-visible")) choose(null);
-          kick();
-        }}
-        onKeyDown={onKeyDown}
+        className="relative mt-5 w-full"
+        style={{ height: layout.stageH }}
       >
+        <div ref={viewportRef} className="h-full w-full overflow-x-auto overscroll-x-contain" style={{ scrollbarWidth: "none" }}>
+          <div
+            ref={stageRef}
+            data-stage
+            role="group"
+            aria-label={heading ?? "Picture rail"}
+            className="relative touch-pan-y select-none md:touch-auto"
+            style={{ width: layout.width, height: layout.stageH, overflowX: "clip" }}
+            onPointerMove={onPointerMove}
+            onPointerDown={onPointerDown}
+            onPointerUp={(event) => finishPointer(event, false)}
+            onPointerCancel={(event) => finishPointer(event, true)}
+            onPointerLeave={(event) => {
+              if (event.pointerType !== "mouse" || pointer.current.id >= 0 || layout.carousel) return;
+              for (let i = 0; i < count; i++) sim.current.tty[i] = 0;
+              if (!document.activeElement?.matches("[data-frame]:focus-visible")) choose(null);
+              kick();
+            }}
+            onKeyDown={onKeyDown}
+          >
         <div aria-hidden="true" data-rail className="pointer-events-none absolute inset-x-0 z-[1]" style={{ top: layout.railTop, height: layout.railT }}>
           <div className="absolute inset-x-0 top-full h-3 bg-black opacity-[0.07] blur-[5px] dark:opacity-40" />
           <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, color-mix(in oklab, var(--color-card) 70%, white) 0%, var(--color-card) 16%, color-mix(in oklab, var(--color-card) 90%, black) 30%, color-mix(in oklab, var(--color-card) 96%, white) 46%, var(--color-card) 62%, color-mix(in oklab, var(--color-card) 84%, black) 86%, color-mix(in oklab, var(--color-card) 72%, black) 100%)", boxShadow: "0 1px 0 color-mix(in oklab, var(--color-foreground) 14%, transparent), 0 -1px 0 color-mix(in oklab, var(--color-foreground) 8%, transparent)" }} />
@@ -769,6 +783,36 @@ export function PictureRailGallery({
             </div>
           );
         })}
+          </div>
+        </div>
+        {count > 1 && (
+          <>
+          <button
+            type="button"
+            aria-label="Previous works"
+            className="absolute left-3 top-1/2 z-40 grid size-10 -translate-y-1/2 place-items-center rounded-full border border-border/70 bg-background/85 text-foreground shadow-lg backdrop-blur transition-colors hover:bg-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring sm:left-5"
+            onClick={() => {
+              stop();
+              if (layout.carousel) choose(clamp((current ?? live.current.carouselIndex) - 1, 0, count - 1));
+              else viewportRef.current?.scrollBy({ left: -viewportRef.current.clientWidth * 0.75, behavior: reduced ? "auto" : "smooth" });
+            }}
+          >
+            <ChevronLeft aria-hidden="true" className="size-5" />
+          </button>
+          <button
+            type="button"
+            aria-label="Next works"
+            className="absolute right-3 top-1/2 z-40 grid size-10 -translate-y-1/2 place-items-center rounded-full border border-border/70 bg-background/85 text-foreground shadow-lg backdrop-blur transition-colors hover:bg-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring sm:right-5"
+            onClick={() => {
+              stop();
+              if (layout.carousel) choose(clamp((current ?? live.current.carouselIndex) + 1, 0, count - 1));
+              else viewportRef.current?.scrollBy({ left: viewportRef.current.clientWidth * 0.75, behavior: reduced ? "auto" : "smooth" });
+            }}
+          >
+            <ChevronRight aria-hidden="true" className="size-5" />
+          </button>
+          </>
+        )}
       </div>
 
       {layout.carousel && count > 1 && (
