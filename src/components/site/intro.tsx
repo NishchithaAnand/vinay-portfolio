@@ -50,7 +50,7 @@ function Marquee({ works, direction, delay, onOpen }: { works: Artwork[]; direct
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 1.4, ease: EASE, delay }}
     >
-      <motion.ul className="m-0 flex h-full w-max list-none gap-3 p-0 sm:gap-4" style={reduced ? undefined : { x }}>
+      <motion.ul className="m-0 flex h-full w-max list-none gap-6 p-0 sm:gap-10" style={reduced ? undefined : { x }}>
         {[0, 1].map((copy) =>
           works.map((work) => (
             <li key={`${copy}-${work.id}`} className="h-full shrink-0" aria-hidden={copy === 1 || undefined}>
@@ -83,7 +83,8 @@ function Tile({ work, copy, onOpen }: { work: Artwork; copy: number; onOpen: (wo
         loading="lazy"
         decoding="async"
         draggable={false}
-        className="size-full select-none object-cover transition-transform duration-700 ease-(--ease-lift) group-hover:scale-[1.04] motion-reduce:transition-none"
+        // Quieter at rest so the name leads; full strength under the pointer or keyboard focus.
+        className="size-full select-none object-cover opacity-70 transition-[opacity,scale] duration-700 ease-(--ease-lift) group-hover:scale-[1.04] group-hover:opacity-100 group-focus-visible:opacity-100 motion-reduce:transition-none"
       />
       <span className="pointer-events-none absolute inset-x-2 bottom-2 translate-y-1 rounded-md bg-black/55 px-2.5 py-1.5 text-left text-xs font-medium text-white opacity-0 backdrop-blur-sm transition-[opacity,translate] duration-300 group-hover:translate-y-0 group-hover:opacity-100 group-focus-visible:translate-y-0 group-focus-visible:opacity-100">
         {work.title}
@@ -134,7 +135,7 @@ export function Intro() {
       </div>
 
       {/* His work, gliding past. */}
-      <div className="mt-6 flex min-h-0 flex-1 flex-col gap-3 pb-5 sm:mt-8 sm:gap-4 sm:pb-8">
+      <div className="mt-8 flex min-h-0 flex-1 flex-col gap-6 pb-6 sm:mt-12 sm:gap-10 sm:pb-10">
         <Marquee works={rows[0]!} direction={-1} delay={0.7} onOpen={onOpen} />
         <Marquee works={rows[1]!} direction={1} delay={0.85} onOpen={onOpen} />
       </div>
